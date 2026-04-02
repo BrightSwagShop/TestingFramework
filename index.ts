@@ -10,3 +10,10 @@ export * from "./Frontend/Pages/LoginPage";
 export * from "./Frontend/Pages/CartPage";
 export * from "./Frontend/Pages/NotFoundPage";
 export * from "./Frontend/Pages/AdminPage";
+
+module.exports = {
+  ...require('./API/SOM/backend-api.som'),
+  ...require('./API/SOM/products-api.som'),
+  ...require('./API/SOM/shopping-cart-api.som'),
+  ...require('./API/Data/product-payloads')
+};
