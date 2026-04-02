@@ -1,0 +1,10 @@
+{
+  "name": "@brightswagshop/testing-framework",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./qase/check-env": "./API/Scripts/require-qase-env.js"
+  }
+}
