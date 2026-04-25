@@ -6,10 +6,12 @@
   "main": "index.js",
   "exports": {
     ".": "./index.js",
-    "./qase/check-env": "./API/Scripts/require-qase-env.js"
+    "./qase/check-env": "./API/Scripts/require-qase-env.js",
+    "./Frontend/*": "./Frontend/*.ts"
   },
   "files": [
     "index.js",
-    "API"
+    "API",
+    "Frontend"
   ]
 }
