@@ -7,11 +7,12 @@
   "exports": {
     ".": "./index.js",
     "./qase/check-env": "./API/Scripts/require-qase-env.js",
-    "./Frontend/*": "./Frontend/*.ts"
+    "./Frontend/*": "./FrontendDist/*.js"
   },
   "files": [
     "index.js",
     "API",
-    "Frontend"
+    "Frontend",
+    "FrontendDist"
   ]
 }
