@@ -1,18 +1,23 @@
 {
-  "name": "@brightswagshop/testing-framework",
-  "version": "1.0.1",
-  "private": false,
-  "type": "commonjs",
-  "main": "index.js",
-  "exports": {
-    ".": "./index.js",
-    "./qase/check-env": "./API/Scripts/require-qase-env.js",
-    "./Frontend/*": "./FrontendDist/*.js"
+  "name": "TestingFramework",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
   },
-  "files": [
-    "index.js",
-    "API",
-    "Frontend",
-    "FrontendDist"
-  ]
+  "exports": {
+    "./frontend": {
+      "types": "./dist/Frontend/Pages/index.d.ts",
+      "default": "./dist/Frontend/Pages/index.js"
+    },
+    "./api": {
+      "default": "./dist/API/index.js"
+    }
+  },
+  "dependencies": {
+    "@playwright/test": "^1.40.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
 }
