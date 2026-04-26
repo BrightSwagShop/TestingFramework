@@ -5,9 +5,14 @@
     "build": "tsc",
     "prepare": "npm run build"
   },
+  "files": [
+    "dist"
+  ],
   "exports": {
     "./frontend": {
       "types": "./dist/Frontend/Pages/index.d.ts",
+      "import": "./dist/Frontend/Pages/index.js",
+      "require": "./dist/Frontend/Pages/index.js",
       "default": "./dist/Frontend/Pages/index.js"
     },
     "./api": {
