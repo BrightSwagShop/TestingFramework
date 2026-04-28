@@ -1,3 +1,4 @@
+run-name: Cross Repo E2E - ${{ github.event.client_payload.source_repository }} @ ${{ github.event.client_payload.sha }} (source run ${{ github.event.client_payload.source_run_id }})
 name: Cross Repo E2E
 
 on:
@@ -114,3 +115,49 @@ jobs:
             backend.log
             frontend.log
           retention-days: 30
+
+      - name: Publish success status back to source repo
+        env:
+          CROSS_REPO_PAT: ${{ secrets.CROSS_REPO_PAT }}
+        if: success() && github.event_name == 'repository_dispatch' && env.CROSS_REPO_PAT != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ env.CROSS_REPO_PAT }}
+          script: |
+            const [owner, repo] = '${{ github.event.client_payload.source_repository }}'.split('/');
+            const sha = '${{ github.event.client_payload.sha }}';
+            const contextName = '${{ github.event.client_payload.status_context }}';
+            const runUrl = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
+
+            await github.rest.repos.createCommitStatus({
+              owner,
+              repo,
+              sha,
+              state: 'success',
+              context: contextName,
+              description: 'Cross-repo E2E passed',
+              target_url: runUrl,
+            });
+
+      - name: Publish failure status back to source repo
+        env:
+          CROSS_REPO_PAT: ${{ secrets.CROSS_REPO_PAT }}
+        if: failure() && github.event_name == 'repository_dispatch' && env.CROSS_REPO_PAT != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ env.CROSS_REPO_PAT }}
+          script: |
+            const [owner, repo] = '${{ github.event.client_payload.source_repository }}'.split('/');
+            const sha = '${{ github.event.client_payload.sha }}';
+            const contextName = '${{ github.event.client_payload.status_context }}';
+            const runUrl = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
+
+            await github.rest.repos.createCommitStatus({
+              owner,
+              repo,
+              sha,
+              state: 'failure',
+              context: contextName,
+              description: 'Cross-repo E2E failed',
+              target_url: runUrl,
+            });
