@@ -15,10 +15,13 @@ class CategoryItemsPage extends BasePage_1.BasePage {
     constructor(page) {
         super(page);
     }
-    navigateToCategory(category) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Mock the products API before navigating
-            yield this.mockProductsByTypeAPI();
+    navigateToCategory(category_1) {
+        return __awaiter(this, arguments, void 0, function* (category, options = {}) {
+            const { mockApi = true } = options;
+            if (mockApi) {
+                // Mock the products API before navigating
+                yield this.mockProductsByTypeAPI();
+            }
             yield this.goto(`/category/${category}`);
             yield this.page.waitForLoadState('domcontentloaded');
         });

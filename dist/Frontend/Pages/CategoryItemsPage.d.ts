@@ -2,7 +2,9 @@ import { BasePage } from './BasePage';
 import { Locator, Page } from '@playwright/test';
 export declare class CategoryItemsPage extends BasePage {
     constructor(page: Page);
-    navigateToCategory(category: string): Promise<void>;
+    navigateToCategory(category: string, options?: {
+        mockApi?: boolean;
+    }): Promise<void>;
     getCategoryHeading(): Locator;
     getProductCards(): Locator;
     getProductCount(): Promise<number>;

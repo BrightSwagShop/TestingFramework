@@ -16,9 +16,12 @@ class HomePage extends BasePage_1.BasePage {
         super(page);
     }
     navigateToHome() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Mock the product types API before navigating
-            yield this.mockProductTypesAPI();
+        return __awaiter(this, arguments, void 0, function* (options = {}) {
+            const { mockApi = true } = options;
+            if (mockApi) {
+                // Mock the product types API before navigating
+                yield this.mockProductTypesAPI();
+            }
             yield this.goto('/');
             yield this.waitForPageLoad();
         });
