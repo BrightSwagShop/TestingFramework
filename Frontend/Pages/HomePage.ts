@@ -6,9 +6,13 @@ export class HomePage extends BasePage {
     super(page);
   }
 
-  async navigateToHome(): Promise<void> {
-    // Mock the product types API before navigating
-    await this.mockProductTypesAPI();
+  async navigateToHome(options: { mockApi?: boolean } = {}): Promise<void> {
+    const { mockApi = true } = options;
+
+    if (mockApi) {
+      // Mock the product types API before navigating
+      await this.mockProductTypesAPI();
+    }
     
     await this.goto('/');
     await this.waitForPageLoad();

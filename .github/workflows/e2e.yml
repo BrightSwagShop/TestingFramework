@@ -1,0 +1,116 @@
+name: Cross Repo E2E
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [run-cross-e2e]
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: End-to-end (frontend + backend)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Checkout TestingFramework
+        uses: actions/checkout@v4
+
+      - name: Checkout backend repo
+        uses: actions/checkout@v4
+        with:
+          repository: BrightSwagShop/Brightswagshop-Backend
+          ref: ${{ github.event.client_payload.source_repository == 'BrightSwagShop/Brightswagshop-Backend' && github.event.client_payload.sha || 'main' }}
+          path: backend
+
+      - name: Checkout frontend repo
+        uses: actions/checkout@v4
+        with:
+          repository: BrightSwagShop/Brightswagshop-Frontend
+          ref: ${{ github.event.client_payload.source_repository == 'BrightSwagShop/Brightswagshop-Frontend' && github.event.client_payload.sha || 'main' }}
+          path: frontend
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.x
+
+      - name: Install TestingFramework dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: frontend/frontend
+        run: npm ci
+
+      - name: Restore backend dependencies
+        working-directory: backend
+        run: dotnet restore Backend_BrightSwagShop.sln
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Start backend API
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          Mongo__ConnectionString: mongodb://127.0.0.1:27017
+          Mongo__Database: BrightSwagShop
+          Supabase__Url: ${{ secrets.SUPABASE_URL }}
+          Supabase__AnonKey: ${{ secrets.SUPABASE_ANON_KEY }}
+          Supabase__ServiceRoleKey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          Stripe__SecretKey: ${{ secrets.STRIPE_SECRET_KEY }}
+          Stripe__WebhookSecret: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          Jwt__Key: ${{ secrets.JWT_KEY }}
+          Jwt__Issuer: ${{ secrets.JWT_ISSUER }}
+          Jwt__Audience: ${{ secrets.JWT_AUDIENCE }}
+          AzureAd__TenantId: ${{ secrets.AZURE_AD_TENANT_ID }}
+          AzureAd__ClientId: ${{ secrets.AZURE_AD_CLIENT_ID }}
+          AzureAd__Audience: ${{ secrets.AZURE_AD_AUDIENCE }}
+        run: |
+          dotnet run --project backend/FakeWebShop.Api/FakeWebShop.Api.csproj --launch-profile http > backend.log 2>&1 &
+
+      - name: Start frontend dev server
+        env:
+          VITE_API_URL: http://127.0.0.1:5076
+        run: |
+          cd frontend/frontend
+          npm run dev -- --host 127.0.0.1 --port 5173 > ../../frontend.log 2>&1 &
+
+      - name: Wait for backend and frontend
+        run: npx wait-on http://127.0.0.1:5076/api/categories http://127.0.0.1:5173
+
+      - name: Run cross-repo E2E
+        env:
+          CI: true
+          API_BASE_URL: http://127.0.0.1:5076
+          FRONTEND_URL: http://127.0.0.1:5173
+        run: npm run e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cross-repo-playwright-report
+          path: playwright-report
+          retention-days: 30
+
+      - name: Upload service logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cross-repo-service-logs
+          path: |
+            backend.log
+            frontend.log
+          retention-days: 30

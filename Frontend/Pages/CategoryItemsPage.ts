@@ -6,9 +6,13 @@ export class CategoryItemsPage extends BasePage {
     super(page);
   }
 
-  async navigateToCategory(category: string): Promise<void> {
-    // Mock the products API before navigating
-    await this.mockProductsByTypeAPI();
+  async navigateToCategory(category: string, options: { mockApi?: boolean } = {}): Promise<void> {
+    const { mockApi = true } = options;
+
+    if (mockApi) {
+      // Mock the products API before navigating
+      await this.mockProductsByTypeAPI();
+    }
     
     await this.goto(`/category/${category}`);
     await this.page.waitForLoadState('domcontentloaded');

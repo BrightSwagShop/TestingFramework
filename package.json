@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "e2e": "playwright test -c End-to-end/playwright.config.ts",
+    "e2e:headed": "playwright test -c End-to-end/playwright.config.ts --headed"
   },
   "files": [
     "dist"
@@ -23,6 +25,7 @@
     "@playwright/test": "^1.40.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "wait-on": "^8.0.5"
   }
 }
