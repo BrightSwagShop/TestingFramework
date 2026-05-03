@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: BrightSwagShop/Brightswagshop-Frontend
-          ref: ${{ github.event.client_payload.source_repository == 'BrightSwagShop/Brightswagshop-Frontend' && github.event.client_payload.sha || 'main' }}
+          ref: ${{ github.event.client_payload.source_repository == 'BrightSwagShop/Brightswagshop-Frontend' && github.event.client_payload.sha || github.event.client_payload.frontend_ref || 'frontend-framework-integration' }}
           path: frontend
 
       - name: Setup .NET
