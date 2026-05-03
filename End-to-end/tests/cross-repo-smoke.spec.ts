@@ -2,6 +2,18 @@ import { expect, test } from '@playwright/test';
 import { CategoryItemsPage, HomePage } from '../../Frontend/Pages';
 
 test.describe('Cross-repo E2E smoke', () => {
+  test.beforeEach(async ({ page }) => {
+    page.on('console', (msg) => console.log(`PAGE_CONSOLE [${msg.type()}]: ${msg.text()}`));
+    page.on('requestfailed', (request) => {
+      const failure = request.failure();
+      console.log(`REQUEST_FAILED: ${request.url()} ${failure ? failure.errorText : ''}`);
+    });
+    page.on('requestfinished', async (request) => {
+      const resp = request.response();
+      console.log(`REQUEST_FINISHED: ${request.url()} ${resp ? resp.status() : 'no-response'}`);
+    });
+  });
+
   test('frontend renders and loads product types from backend', async ({ page }) => {
     const homePage = new HomePage(page);
     const productTypesResponsePromise = page.waitForResponse((response) => {
