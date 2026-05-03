@@ -4,7 +4,7 @@ const frontendUrl = process.env.FRONTEND_URL || 'http://127.0.0.1:5173';
 const apiBaseUrl = process.env.API_BASE_URL || 'http://127.0.0.1:5076';
 
 export default defineConfig({
-  testDir: './End-to-end/tests',
+  testDir: './tests',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
