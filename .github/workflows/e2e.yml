@@ -89,17 +89,45 @@ jobs:
           cd frontend/frontend
           npm run dev -- --host 127.0.0.1 --port 5173 > ../../frontend.log 2>&1 &
 
-      - name: Wait for backend and frontend
+      - name: Wait for backend and frontend (HTTP GET)
         run: |
-          set -e
-          npx wait-on --verbose --timeout 120000 http://127.0.0.1:5076/api/categories http://127.0.0.1:5173 || (
-            echo "Wait-on timed out; showing backend.log and frontend.log for debugging"
+          set -euo pipefail
+          start=$(date +%s)
+          timeout=120
+
+          check() {
+            url="$1"
+            status=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 "$url" || echo "000")
+            echo "$(date -u +%T) check $url -> $status"
+            [ "$status" = "200" ]
+          }
+
+          echo "Waiting for frontend (http://127.0.0.1:5173/)"
+          until check http://127.0.0.1:5173; do
+            sleep 1
+            if [ $(( $(date +%s) - start )) -gt $timeout ]; then
+              echo "Frontend did not respond in time"
+              break
+            fi
+          done
+
+          echo "Waiting for backend (http://127.0.0.1:5076/api/categories)"
+          until check http://127.0.0.1:5076/api/categories; do
+            sleep 1
+            if [ $(( $(date +%s) - start )) -gt $timeout ]; then
+              echo "Backend did not respond in time"
+              break
+            fi
+          done
+
+          if ! check http://127.0.0.1:5173 || ! check http://127.0.0.1:5076/api/categories; then
+            echo "Services failed to become healthy; dumping logs"
             echo "----- backend.log -----"
-            sed -n '1,200p' backend.log || true
+            sed -n '1,400p' backend.log || true
             echo "----- frontend.log -----"
-            sed -n '1,200p' frontend.log || true
+            sed -n '1,400p' frontend.log || true
             exit 1
-          )
+          fi
 
       - name: Run cross-repo E2E
         env:
