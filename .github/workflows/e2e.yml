@@ -65,6 +65,7 @@ jobs:
       - name: Start backend API
         env:
           ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5076
           Mongo__ConnectionString: mongodb://127.0.0.1:27017
           Mongo__Database: BrightSwagShop
           Supabase__Url: ${{ secrets.SUPABASE_URL }}
@@ -89,7 +90,16 @@ jobs:
           npm run dev -- --host 127.0.0.1 --port 5173 > ../../frontend.log 2>&1 &
 
       - name: Wait for backend and frontend
-        run: npx wait-on http://127.0.0.1:5076/api/categories http://127.0.0.1:5173
+        run: |
+          set -e
+          npx wait-on --verbose --timeout 120000 http://127.0.0.1:5076/api/categories http://127.0.0.1:5173 || (
+            echo "Wait-on timed out; showing backend.log and frontend.log for debugging"
+            echo "----- backend.log -----"
+            sed -n '1,200p' backend.log || true
+            echo "----- frontend.log -----"
+            sed -n '1,200p' frontend.log || true
+            exit 1
+          )
 
       - name: Run cross-repo E2E
         env:
