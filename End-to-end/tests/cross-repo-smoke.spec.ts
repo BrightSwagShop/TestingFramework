@@ -4,13 +4,22 @@ import { CategoryItemsPage, HomePage } from '../../Frontend/Pages';
 test.describe('Cross-repo E2E smoke', () => {
   test.beforeEach(async ({ page }) => {
     page.on('console', (msg) => console.log(`PAGE_CONSOLE [${msg.type()}]: ${msg.text()}`));
+    page.on('pageerror', (err) => console.log(`PAGE_ERROR: ${err.message}`));
     page.on('requestfailed', (request) => {
       const failure = request.failure();
       console.log(`REQUEST_FAILED: ${request.url()} ${failure ? failure.errorText : ''}`);
     });
     page.on('requestfinished', async (request) => {
       const resp = request.response();
-      console.log(`REQUEST_FINISHED: ${request.url()} ${resp ? resp.status() : 'no-response'}`);
+      let status = 'no-response';
+      if (resp) {
+        try {
+          status = typeof (resp as any).status === 'function' ? (resp as any).status() : (resp as any).status;
+        } catch (e) {
+          status = `error-reading-status:${String(e)}`;
+        }
+      }
+      console.log(`REQUEST_FINISHED: ${request.url()} ${status}`);
     });
   });
 
