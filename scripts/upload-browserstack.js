@@ -115,8 +115,14 @@ async function ensureTestCases(projectId, folderId, testCaseNames) {
       continue;
     }
 
+    // If caller provided detailed payloads, include steps/description
+    const detail = (ensureTestCases.details && ensureTestCases.details.get && ensureTestCases.details.get(name)) || null;
+    const payload = { name };
+    if (detail && detail.description) payload.description = detail.description;
+    if (detail && detail.steps) payload.steps = detail.steps;
+
     const createdResponse = await makeRequest('POST', `/projects/${projectId}/folders/${folderId}/test-cases`, {
-      test_case: { name }
+      test_case: payload
     });
 
     const created = pickObject(createdResponse, 'test_case', 'data');
@@ -181,20 +187,53 @@ async function uploadResults() {
     // Parse JUnit XML and upload test cases
     const xml = fs.readFileSync(REPORT_FILE, 'utf-8');
     const testCases = [];
+    const testCaseDetails = new Map();
 
-    // Simple regex-based parsing for test cases
-    const testCaseRegex = /<testcase[^>]*name="([^"]*)"[^>]*classname="([^"]*)"[^>]*time="([^"]*)"/g;
+    // Flexible regex to handle testcase tags with attributes in any order
+    const testCaseRegex = /<testcase[^>]+>/g;
     let match;
 
     while ((match = testCaseRegex.exec(xml)) !== null) {
-      const name = match[1];
-      const className = match[2];
-      const time = parseFloat(match[3]) || 0;
-      const fullName = `${className}.${name}`;
+      const tag = match[0];
+      const nameMatch = tag.match(/name="([^"]*)"/);
+      const classNameMatch = tag.match(/classname="([^"]*)"/);
+      const timeMatch = tag.match(/time="([^"]*)"/);
+      
+      if (!nameMatch || !classNameMatch) continue;
+      
+      const name = nameMatch[1];
+      const className = classNameMatch[1];
+      const time = parseFloat(timeMatch ? timeMatch[1] : 0) || 0;
+      const fullName = `${className}::${name}`;
 
+      // Find the matching closing tag and extract content
+      const startIdx = xml.indexOf(tag);
+      const closingTag = `</testcase>`;
+      const closingIdx = xml.indexOf(closingTag, startIdx);
+      if (closingIdx === -1) continue;
+
+      const testcaseContent = xml.substring(startIdx + tag.length, closingIdx);
+      
       // Check if test has a failure
-      const hasFailed = xml.includes(`<testcase name="${name}" classname="${className}"`) && 
-                       xml.match(new RegExp(`<testcase[^>]*name="${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*classname="${className.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>([^<]*<failure|[^<]*</testcase>)`, 's'));
+      const hasFailed = testcaseContent.includes('<failure');
+      
+      // Extract failure or system-out as description and steps
+      let description = '';
+      const steps = [];
+      
+      const failureMatch = testcaseContent.match(/<failure[^>]*>([\s\S]*?)<\/failure>/);
+      if (failureMatch) {
+        description = failureMatch[1].trim();
+        steps.push({ name: 'Failure', action: failureMatch[1].trim(), status: 'failed' });
+      } else {
+        const sysOut = testcaseContent.match(/<system-out[^>]*>([\s\S]*?)<\/system-out>/);
+        if (sysOut) {
+          description = sysOut[1].trim();
+          steps.push({ name: 'Output', action: sysOut[1].trim(), status: 'passed' });
+        }
+      }
+
+      testCaseDetails.set(fullName, { description, steps });
 
       testCases.push({
         name: fullName,
@@ -206,6 +245,8 @@ async function uploadResults() {
     console.log(`[BrowserStack] Found ${testCases.length} test cases`);
 
     const folderId = await getOrCreateFolder(projectId, 'Cross-Repo E2E');
+    // attach details map to ensureTestCases so the creation step can include steps/description
+    ensureTestCases.details = testCaseDetails;
     const testCaseIdByName = await ensureTestCases(
       projectId,
       folderId,
@@ -222,11 +263,17 @@ async function uploadResults() {
         }
 
         console.log(`[BrowserStack] Uploading result for: ${testCase.name}`);
+        const detail = testCaseDetails.get(testCase.name) || null;
+        const resultPayload = {
+          status: toBrowserStackStatus(testCase.status),
+          duration: testCase.duration,
+        };
+        if (detail && detail.steps && detail.steps.length) {
+          resultPayload.steps = detail.steps.map((s, idx) => ({ index: idx + 1, name: s.name, action: s.action, status: s.status }));
+        }
+
         await makeRequest('POST', `/projects/${projectId}/test-runs/${testRunId}/test-cases/${encodeURIComponent(testCaseId)}/results`, {
-          result: {
-            status: toBrowserStackStatus(testCase.status),
-            duration: testCase.duration,
-          }
+          result: resultPayload
         });
       } catch (e) {
         console.warn(`[BrowserStack] Warning: Could not upload result for ${testCase.name}:`, e.message);
