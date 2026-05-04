@@ -106,21 +106,23 @@ async function getOrCreateFolder(projectId, folderName) {
 }
 
 async function ensureTestCases(projectId, folderId, testCaseNames) {
-  const existingCasesResponse = await makeRequest('GET', `/projects/${projectId}/test-cases`);
+  // Fetch all existing test cases in the project with pagination
+  const existingCasesResponse = await makeRequest('GET', `/projects/${projectId}/test-cases?per_page=1000`);
   const existingCases = pickList(existingCasesResponse, 'test_cases', 'data');
   const byName = new Map(existingCases.map((tc) => [tc.name, pickIdentifier(tc)]));
 
   for (const name of testCaseNames) {
     if (byName.has(name)) {
+      console.log(`[BrowserStack] Reusing existing test case: ${name}`);
       continue;
     }
 
-    // If caller provided detailed payloads, include steps/description
     const detail = (ensureTestCases.details && ensureTestCases.details.get && ensureTestCases.details.get(name)) || null;
     const payload = { name };
     if (detail && detail.description) payload.description = detail.description;
     if (detail && detail.steps) payload.steps = detail.steps;
 
+    console.log(`[BrowserStack] Creating new test case: ${name}`);
     const createdResponse = await makeRequest('POST', `/projects/${projectId}/folders/${folderId}/test-cases`, {
       test_case: payload
     });
@@ -135,6 +137,19 @@ async function ensureTestCases(projectId, folderId, testCaseNames) {
   }
 
   return byName;
+}
+
+async function addTestCasesToTestRun(projectId, testRunId, testCaseIds) {
+  // Add test cases to the test run so they appear in the UI
+  for (const testCaseId of testCaseIds) {
+    try {
+      await makeRequest('POST', `/projects/${projectId}/test-runs/${testRunId}/test-cases`, {
+        test_case_id: testCaseId
+      });
+    } catch (e) {
+      console.warn(`[BrowserStack] Warning: Could not add test case ${testCaseId} to test run:`, e.message);
+    }
+  }
 }
 
 async function uploadResults() {
@@ -253,6 +268,11 @@ async function uploadResults() {
       [...new Set(testCases.map((tc) => tc.name))]
     );
 
+    // Add all test cases to the test run before uploading results
+    const uniqueTestCaseIds = [...new Set(testCaseIdByName.values())];
+    console.log(`[BrowserStack] Adding ${uniqueTestCaseIds.length} test cases to test run ${testRunId}`);
+    await addTestCasesToTestRun(projectId, testRunId, uniqueTestCaseIds);
+
     // Upload results for each test case
     for (const testCase of testCases) {
       try {
@@ -265,6 +285,7 @@ async function uploadResults() {
         console.log(`[BrowserStack] Uploading result for: ${testCase.name}`);
         const detail = testCaseDetails.get(testCase.name) || null;
         const resultPayload = {
+          test_case_id: testCaseId,
           status: toBrowserStackStatus(testCase.status),
           duration: testCase.duration,
         };
@@ -272,7 +293,7 @@ async function uploadResults() {
           resultPayload.steps = detail.steps.map((s, idx) => ({ index: idx + 1, name: s.name, action: s.action, status: s.status }));
         }
 
-        await makeRequest('POST', `/projects/${projectId}/test-runs/${testRunId}/test-cases/${encodeURIComponent(testCaseId)}/results`, {
+        await makeRequest('POST', `/projects/${projectId}/test-runs/${testRunId}/results`, {
           result: resultPayload
         });
       } catch (e) {
