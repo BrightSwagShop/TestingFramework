@@ -9,7 +9,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: [['html'], ['list'], ['./reporters/browserstack.js']],
+  reporter: [['html'], ['list'], ['junit', { outputFile: 'test-results/junit.xml' }], ['./reporters/browserstack.js']],
   use: {
     baseURL: frontendUrl,
     trace: 'on-first-retry',

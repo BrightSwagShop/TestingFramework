@@ -5,7 +5,9 @@
     "build": "tsc",
     "prepare": "npm run build",
     "e2e": "playwright test -c End-to-end/playwright.config.ts",
-    "e2e:headed": "playwright test -c End-to-end/playwright.config.ts --headed"
+    "e2e:headed": "playwright test -c End-to-end/playwright.config.ts --headed",
+    "e2e:browserstack": "playwright test -c End-to-end/playwright.config.ts && npm run upload:browserstack",
+    "upload:browserstack": "node scripts/upload-browserstack.js End-to-end/test-results/junit.xml"
   },
   "files": [
     "dist"
@@ -25,6 +27,7 @@
     "@playwright/test": "^1.40.0"
   },
   "devDependencies": {
+    "@dot-slash/browserstack-test-management": "^6.1.0",
     "typescript": "^5.0.0",
     "wait-on": "^8.0.5"
   }
