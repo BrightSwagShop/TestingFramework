@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Playwright Tests" tests="3" failures="1" skipped="0" time="15.234">
+  <testsuite name="Auth Tests" tests="2" failures="1" skipped="0" time="8.5">
+    <testcase classname="login.spec.ts" name="should login with valid credentials" time="4.2">
+      <system-out>Test passed: User logged in successfully</system-out>
+    </testcase>
+    <testcase classname="login.spec.ts" name="should show error for invalid password" time="4.3">
+      <failure message="AssertionError: expected 'success' to include 'error'">
+        Error: Login did not show expected error message
+        at login.spec.ts:45
+      </failure>
+      <system-out>Screenshot saved to /logs/failure-001.png</system-out>
+    </testcase>
+  </testsuite>
+  <testsuite name="Cart Tests" tests="1" failures="0" skipped="0" time="6.734">
+    <testcase classname="cart.spec.ts" name="should add item to cart" time="6.734">
+      <system-out>Test passed: Item added to cart</system-out>
+    </testcase>
+  </testsuite>
+</testsuites>
