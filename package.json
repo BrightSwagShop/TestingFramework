@@ -1,6 +1,8 @@
 {
-  "name": "testing-framework",
-  "version": "1.0.0",
+  "name": "@brightswagshop/testing-framework",
+  "version": "1.1.0",
+  "description": "Shared testing framework for BrightSwagShop — SOMs, page objects, configs, fixtures, and data factories",
+  "main": "./API/index.js",
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build",
@@ -8,17 +10,37 @@
     "e2e:headed": "playwright test -c End-to-end/playwright.config.ts --headed"
   },
   "files": [
-    "dist"
+    "dist",
+    "API",
+    "configs"
   ],
   "exports": {
+    ".": {
+      "require": "./API/index.js",
+      "default": "./API/index.js"
+    },
     "./frontend": {
-      "types": "./dist/Frontend/Pages/index.d.ts",
-      "import": "./dist/Frontend/Pages/index.js",
-      "require": "./dist/Frontend/Pages/index.js",
-      "default": "./dist/Frontend/Pages/index.js"
+      "types": "./dist/Frontend/index.d.ts",
+      "import": "./dist/Frontend/index.js",
+      "require": "./dist/Frontend/index.js",
+      "default": "./dist/Frontend/index.js"
     },
     "./api": {
-      "default": "./dist/API/index.js"
+      "require": "./API/index.js",
+      "default": "./API/index.js"
+    },
+    "./configs/environments": {
+      "require": "./configs/environments.js",
+      "default": "./configs/environments.js"
+    },
+    "./configs/cucumber": {
+      "require": "./configs/cucumber.base.js",
+      "default": "./configs/cucumber.base.js"
+    },
+    "./configs/playwright": {
+      "types": "./dist/configs/playwright.base.config.d.ts",
+      "require": "./dist/configs/playwright.base.config.js",
+      "default": "./dist/configs/playwright.base.config.js"
     }
   },
   "dependencies": {

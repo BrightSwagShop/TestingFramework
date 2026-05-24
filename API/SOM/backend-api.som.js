@@ -1,31 +1,6 @@
-class BackendApiSom {
-  constructor(request) {
-    this.request = request;
-  }
+const { BaseApiSom } = require('./base-api.som');
 
-  async parseJsonSafely(response) {
-    const contentType = response.headers()['content-type'] || '';
-    if (!contentType.includes('application/json')) {
-      return null;
-    }
-
-    try {
-      return await response.json();
-    } catch {
-      return null;
-    }
-  }
-
-  async readResponse(response) {
-    const body = await this.parseJsonSafely(response);
-    return {
-      response,
-      status: response.status(),
-      ok: response.ok(),
-      body
-    };
-  }
-
+class BackendApiSom extends BaseApiSom {
   getCategories() {
     return this.request.get('/api/categories');
   }
@@ -39,6 +14,4 @@ class BackendApiSom {
   }
 }
 
-module.exports = {
-  BackendApiSom
-};
+module.exports = { BackendApiSom };

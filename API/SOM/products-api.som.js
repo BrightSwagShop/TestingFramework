@@ -1,32 +1,6 @@
-class ProductsApiSom {
-  constructor(request) {
-    this.request = request;
-  }
+const { BaseApiSom } = require('./base-api.som');
 
-  async parseJsonSafely(response) {
-    const contentType = response.headers()['content-type'] || '';
-    if (!contentType.includes('application/json')) {
-      return null;
-    }
-
-    try {
-      return await response.json();
-    } catch {
-      return null;
-    }
-  }
-
-  async readResponse(response) {
-    const body = await this.parseJsonSafely(response);
-
-    return {
-      response,
-      status: response.status(),
-      ok: response.ok(),
-      body
-    };
-  }
-
+class ProductsApiSom extends BaseApiSom {
   getAllProducts() {
     return this.request.get('/api/products');
   }
@@ -36,9 +10,7 @@ class ProductsApiSom {
   }
 
   createProduct(payload) {
-    return this.request.post('/api/products', {
-      data: payload
-    });
+    return this.request.post('/api/products', { data: payload });
   }
 
   deleteProduct(productId) {
@@ -46,6 +18,4 @@ class ProductsApiSom {
   }
 }
 
-module.exports = {
-  ProductsApiSom
-};
+module.exports = { ProductsApiSom };
