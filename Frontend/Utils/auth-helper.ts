@@ -152,7 +152,7 @@ export function createEntraIdAuthHelper(scope?: string): EntraIdAuthHelper {
 
   if (!tenantId || !clientId || !clientSecret) {
     throw new Error(
-      'Missing required env vars for EntraID auth. ' +
+      'Missing required environment variables for EntraID authentication. ' +
         'Set ENTRA_ID_TENANT_ID, ENTRA_ID_CLIENT_ID, and ENTRA_ID_CLIENT_SECRET.'
     );
   }
