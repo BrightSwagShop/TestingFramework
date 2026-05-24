@@ -24,8 +24,11 @@ export function createTshirtPayload(): {
     kleuren: {
         kleur: string;
         imageUrl: string;
-        stock: number;
-        sku: string;
+        maten: {
+            maat: string;
+            stock: number;
+            sku: string;
+        }[];
     }[];
 };
 export function createCartPayload(productId: any, options?: {}): {

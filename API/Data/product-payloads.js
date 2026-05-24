@@ -1,7 +1,7 @@
 function createMugPayload() {
   const unique = Date.now();
   return {
-    $type: 'Mok',
+    $type: 'SimpleProduct',
     name: `Playwright Mug ${unique}`,
     description: 'Simple API test product',
     price: 9.99,
@@ -22,7 +22,7 @@ function createMugPayload() {
 function createTshirtPayload() {
   const unique = Date.now();
   return {
-    $type: 'TShirt',
+    $type: 'ProductWithSizes',
     name: `Playwright T-shirt ${unique}`,
     description: 'Simple API test t-shirt',
     price: 24.99,
@@ -33,8 +33,9 @@ function createTshirtPayload() {
       {
         kleur: 'Wit',
         imageUrl: 'https://example.com/tshirt-white.png',
-        stock: 5,
-        sku: `TSH-${unique}`
+        maten: [
+          { maat: 'M', stock: 5, sku: `TSH-M-${unique}` }
+        ]
       }
     ]
   };
