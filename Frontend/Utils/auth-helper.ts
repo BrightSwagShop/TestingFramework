@@ -102,7 +102,13 @@ export class EntraIdAuthHelper {
           status: response.status,
           statusText: response.statusText,
           body: await response.text(),
-          headers: Object.fromEntries(response.headers),
+          headers: (() => {
+            const result: Record<string, string> = {};
+            response.headers.forEach((value, key) => {
+              result[key] = value;
+            });
+            return result;
+          })(),
         };
       },
       { url, method, headers, body: options?.body, options }
