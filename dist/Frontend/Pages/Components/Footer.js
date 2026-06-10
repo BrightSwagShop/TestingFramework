@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Footer = void 0;
 class Footer {
@@ -37,82 +28,54 @@ class Footer {
         return this.page.locator('footer').getByText(' Brightest. All rights reserved.');
     }
     // Methods
-    clickLogoToHome() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.getLogoImage().click();
-        });
+    async clickLogoToHome() {
+        await this.getLogoImage().click();
     }
-    clickAbout() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.getAboutLink().click();
-        });
+    async clickAbout() {
+        await this.getAboutLink().click();
     }
-    clickContact() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.getContactLink().click();
-        });
+    async clickContact() {
+        await this.getContactLink().click();
     }
-    clickLinkedIn() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.getLinkedInLink().click();
-        });
+    async clickLinkedIn() {
+        await this.getLinkedInLink().click();
     }
-    clickFacebook() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.getFacebookLink().click();
-        });
+    async clickFacebook() {
+        await this.getFacebookLink().click();
     }
-    clickInstagram() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.getInstagramLink().click();
-        });
+    async clickInstagram() {
+        await this.getInstagramLink().click();
     }
     // Assertions helpers
-    isLogoVisible() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.getLogoImage().isVisible();
-        });
+    async isLogoVisible() {
+        return await this.getLogoImage().isVisible();
     }
-    isAboutLinkVisible() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.getAboutLink().isVisible();
-        });
+    async isAboutLinkVisible() {
+        return await this.getAboutLink().isVisible();
     }
-    isContactLinkVisible() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.getContactLink().isVisible();
-        });
+    async isContactLinkVisible() {
+        return await this.getContactLink().isVisible();
     }
-    isLinkedInLinkVisible() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.getLinkedInLink().isVisible();
-        });
+    async isLinkedInLinkVisible() {
+        return await this.getLinkedInLink().isVisible();
     }
-    isFacebookLinkVisible() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.getFacebookLink().isVisible();
-        });
+    async isFacebookLinkVisible() {
+        return await this.getFacebookLink().isVisible();
     }
-    isInstagramLinkVisible() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.getInstagramLink().isVisible();
-        });
+    async isInstagramLinkVisible() {
+        return await this.getInstagramLink().isVisible();
     }
-    isRightsTextVisible() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.getRightsText().isVisible();
-        });
+    async isRightsTextVisible() {
+        return await this.getRightsText().isVisible();
     }
-    verifyAllFooterElements() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return ((yield this.isLogoVisible()) &&
-                (yield this.isAboutLinkVisible()) &&
-                (yield this.isContactLinkVisible()) &&
-                (yield this.isRightsTextVisible()) &&
-                (yield this.isLinkedInLinkVisible()) &&
-                (yield this.isFacebookLinkVisible()) &&
-                (yield this.isInstagramLinkVisible()));
-        });
+    async verifyAllFooterElements() {
+        return ((await this.isLogoVisible()) &&
+            (await this.isAboutLinkVisible()) &&
+            (await this.isContactLinkVisible()) &&
+            (await this.isRightsTextVisible()) &&
+            (await this.isLinkedInLinkVisible()) &&
+            (await this.isFacebookLinkVisible()) &&
+            (await this.isInstagramLinkVisible()));
     }
 }
 exports.Footer = Footer;

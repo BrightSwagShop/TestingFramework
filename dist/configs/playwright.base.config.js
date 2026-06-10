@@ -24,7 +24,7 @@ exports.basePlaywrightConfig = {
         video: 'retain-on-failure',
     },
     projects: [
-        { name: 'chromium', use: Object.assign({}, test_1.devices['Desktop Chrome']) },
+        { name: 'chromium', use: { ...test_1.devices['Desktop Chrome'] } },
     ],
     timeout: isCI ? 45000 : 30000,
     expect: { timeout: isCI ? 15000 : 10000 },

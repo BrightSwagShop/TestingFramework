@@ -13,7 +13,7 @@ const allureFormat = 'allure-cucumberjs/reporter';
  * Build Cucumber profile config objects.
  * Pass per-profile overrides to merge on top of the shared base.
  *
- * @param {object} overrides - { default, allure, browserstack }
+ * @param {object} overrides - { default, allure, testrail }
  */
 function buildProfiles(overrides = {}) {
   return {
@@ -27,10 +27,10 @@ function buildProfiles(overrides = {}) {
       format: ['progress', allureFormat],
       ...overrides.allure
     },
-    browserstack: {
+    testrail: {
       ...sharedPaths,
       format: ['progress', allureFormat, 'json:test-results/cucumber.json'],
-      ...overrides.browserstack
+      ...overrides.testrail
     }
   };
 }

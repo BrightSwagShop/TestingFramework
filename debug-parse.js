@@ -82,7 +82,7 @@ for (const tc of testCases) {
     console.log(`    - [${step.status}] ${step.name}: ${step.action.substring(0, 60)}...`);
   }
 
-  // Show what would be sent to BrowserStack
+  // Show what would be sent to TestRail
   const resultPayload = {
     status: tc.status.toLowerCase() === 'passed' ? 'passed' : 'failed',
     duration: tc.duration,
@@ -90,7 +90,7 @@ for (const tc of testCases) {
   if (detail.steps && detail.steps.length) {
     resultPayload.steps = detail.steps.map((s, idx) => ({ index: idx + 1, name: s.name, action: s.action, status: s.status }));
   }
-  console.log(`  BrowserStack Result Payload:`);
+  console.log(`  TestRail Result Payload:`);
   console.log(`    ${JSON.stringify(resultPayload, null, 2).split('\n').join('\n    ')}`);
 }
 
