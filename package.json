@@ -44,11 +44,11 @@
     }
   },
   "dependencies": {
-    "@playwright/test": "^1.40.0"
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^22.15.3",
+    "typescript": "^5.0.0"
   },
   "devDependencies": {
-    "@types/node": "^22.15.3",
-    "typescript": "^5.0.0",
     "wait-on": "^8.0.5"
   }
 }
